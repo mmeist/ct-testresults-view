@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "es6",
+        "outDir": "TestResultsView",
+        "lib": [
+            "es2019",
+            "dom"
+        ],  
+        "jsx": "react",
+        "sourceMap": true,
+        "rootDir": "..",
+		"strict": true   /* enable all strict type-checking options */
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

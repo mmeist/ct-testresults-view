@@ -1,0 +1,63 @@
+{
+	"publisher": "asdasd",
+	"repository": "asdasd",
+	"name": "ct-testresults",
+	"displayName": "ct-testresults",
+	"description": "Test results viewer for Computing Tutor",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.40.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.ct-testresults"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.ct-testresults",
+				"title": "Test Results",
+				"category": "Computing Tutor"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "npm-run-all compile:*",
+		"watch": "npm-run-all -p watch:*",
+		"compile:extension": "tsc -p ./",
+		"compile:views": "webpack --mode development",
+		"watch:extension": "tsc -watch -p ./",
+		"watch:views": "webpack --watch --mode development"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^12.11.7",
+		"@types/react": "^16.9.13",
+		"@types/react-dom": "^16.9.4",
+		"@types/vscode": "^1.40.0",
+		"css-loader": "^3.2.0",
+		"glob": "^7.1.5",
+		"mocha": "^6.2.2",
+		"npm-run-all": "^4.1.5",
+		"style-loader": "^1.0.1",
+		"ts-loader": "^6.2.1",
+		"tslint": "^5.20.0",
+		"typescript": "^3.6.4",
+		"vscode-test": "^1.2.2",
+		"webpack": "^4.41.2",
+		"webpack-cli": "^3.3.10"
+	},
+	"dependencies": {
+		"@fortawesome/fontawesome-svg-core": "^1.2.25",
+		"@fortawesome/free-solid-svg-icons": "^5.11.2",
+		"@fortawesome/react-fontawesome": "^0.1.7",
+		"react": "^16.12.0",
+		"react-dom": "^16.12.0",
+		"react-split-pane": "^0.1.89"
+	}
+}
