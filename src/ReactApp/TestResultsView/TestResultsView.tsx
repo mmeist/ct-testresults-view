@@ -66,6 +66,14 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
     return(<Tabs tabs={tabs}/>);
 }
 
+const CellComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
+    const cell_node: NodeStore = {name: props.name,
+                                  values: props.values.cell,
+                                  parent: props.parent,
+                                  is_leaf: true};
+    return ComparisonDetailsView(cell_node);
+}
+
 const visibleFilter = ([k, v]: [string, any]): boolean => {
     return !k.endsWith("_") || k === "value_";
 }
@@ -79,9 +87,17 @@ const unpackFilter = ([k, v]: [string, any]): boolean => {
 
 const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
     if (parent !== null) {
-        if (v.value_ !== undefined && v.value_.student_ !== undefined && v.value_.reference_ !== undefined) {
-        //if (parent.name === "comparison" && k !== "mltutorGraphicsResults") {
+        if (v.value_ !== undefined &&
+            v.value_.student_ !== undefined &&
+            v.value_.reference_ !== undefined) {
+            //if (parent.name === "comparison" && k !== "mltutorGraphicsResults") {
             return ComparisonDetailsView;
+        }
+        if (v.cell !== undefined &&
+            v.cell.value_!== undefined &&
+            v.cell.value_.student_ !== undefined &&
+            v.cell.value_.student_ !== undefined) {
+            return CellComparisonDetailsView;
         }
     }
     // no details mapping found
@@ -92,6 +108,12 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
     let comparison: any;
     if (node.parent === null && node.values.comparison !== undefined) {
         comparison = node.values.comparison.comparison_;
+    } else if (node.values.comparison_ === undefined) {
+        if (node.values.cell !== undefined && node.values.cell.comparison_ !== undefined) {
+            comparison = node.values.cell.comparison_;
+        } else {
+            return null; // no comparison_ field found
+        }
     } else {
         comparison = node.values.comparison_;
     }
