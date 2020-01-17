@@ -120,7 +120,9 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
 
     let classname: string = 'tree-node';
     let selected: boolean = (props.selected_node !== undefined) ?
-                            props.node.values === props.selected_node.values : false;
+                             props.node.values === props.selected_node.values &&
+                             props.node.name === props.selected_node.name
+                             : false;
     if (selected) {
         classname += ' tree-node-selected'
     }

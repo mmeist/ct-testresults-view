@@ -111,8 +111,6 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
     } else if (node.values.comparison_ === undefined) {
         if (node.values.cell !== undefined && node.values.cell.comparison_ !== undefined) {
             comparison = node.values.cell.comparison_;
-        } else {
-            return null; // no comparison_ field found
         }
     } else {
         comparison = node.values.comparison_;
@@ -122,10 +120,10 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
         return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
     }
     if (comparison === "0") { // wrong value
-        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+        return (<FontAwesomeIcon icon={faTimes} color="yellow" size="sm" fixedWidth />);
     }
     if (comparison < 0) { // other error
-        return (<FontAwesomeIcon icon={faTimes} color="yellow" size="sm" fixedWidth />);
+        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
     }
 
     if (detailsMapping(node.parent, [node.name, node.values]) === null) {
