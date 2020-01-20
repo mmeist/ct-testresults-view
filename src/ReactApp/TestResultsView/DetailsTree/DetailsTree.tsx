@@ -15,6 +15,8 @@ interface DetailsTreeProps {
     detailsMapping: (parent: NodeStore | null, [k, v]: [string, any]) => React.FC<NodeStore> | null,
     iconsComp: React.FC<NodeStore>,
     split: "horizontal" | "vertical" | undefined,
+    minSize: number,
+    defaultSize: number,
 }
 
 export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps) => {
@@ -72,7 +74,7 @@ export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps)
     );
 
     return (
-        <SplitPane split={props.split} minSize={100} defaultSize={400}>
+        <SplitPane split={props.split} minSize={props.minSize} defaultSize={props.defaultSize}>
             <div className="tree-container" tabIndex={0}>
                 {root_nodes}
             </div>

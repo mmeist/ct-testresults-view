@@ -10,7 +10,6 @@ import * as _ from 'lodash';
 
 //import './App.css';
 
-
 const info_mapping: Record<string, string> = {
     "2": "there was no comparison done",
     "1": "all elements are the same",
@@ -44,6 +43,13 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
 
     let student_value: string = _.get(props.values, 'value_.student_.value_');
     let reference_value: string = _.get(props.values, 'value_.reference_.value_');
+
+    // hack for matrix formatting in matlab testresults json
+    student_value = student_value.replace(/\\\\n/g, '<br \>');
+    student_value = student_value.replace(/\\n/g, '<br \>');
+    reference_value = reference_value.replace(/\\\\n/g, '<br \>');
+    reference_value = reference_value.replace(/\\n/g, '<br \>');
+
     if (comparison === "0") {
         [student_value, reference_value] = mark_difference(student_value, reference_value);
     }
@@ -62,7 +68,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
          content: (
             <div>
                 <p>{info}</p>
-                <p>class = {_.get(props.values, 'value_.reference_.value_')}</p>
+                <p>class = {_.get(props.values, 'value_.reference_.class_')}</p>
                 <p>size = {_.get( props.values, 'value_.reference_.size_')}</p>
                 <p><code dangerouslySetInnerHTML={{__html: reference_value}}/></p>
             </div>)
@@ -141,23 +147,22 @@ interface TestResultsViewProps {
     testresults: any;
 }
 
-/*const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
+const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
     return (
-        <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
+        <SplitPane split={"horizontal"} minSize={50} defaultSize={100}>
             <div className="tree-container" tabIndex={0}>
-                asdasdasdasdasd
+                {_.get(props.values, 'information_').map((line: any) => <>{line}<br /></>)}
             </div>
-            <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
-                qweqweqwe
-            </SplitPane>
             <div className="details-container" tabIndex={0}>
                 <DetailsTree root={props.values}
-                visibleFilter={visibleFilter}
-                unpackFilter={unpackFilter}
-                detailsMapping={detailsMapping} 
-                iconsComp={Icons}
-                split={"vertical"}
-                />
+                             visibleFilter={visibleFilter}
+                             unpackFilter={unpackFilter}
+                             detailsMapping={detailsMapping} 
+                             iconsComp={Icons}
+                             split={"vertical"}
+                             minSize={100}
+                             defaultSize={400}
+                             />
             </div>
         </SplitPane>
     );
@@ -176,6 +181,14 @@ const topViewDetailsMapping = (parent: NodeStore | null, [k, v]: [string, any]):
 }
 
 const topViewIcons: React.FC<NodeStore> = (node: NodeStore) => {
+    let comparison = _.get(node.values, 'comparison.comparison_');
+    if (comparison !== undefined) {
+        if (comparison === "1") {
+            return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
+        } else {
+            return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+        }
+    }
     return (<FontAwesomeIcon icon={faFolder} size="sm" fixedWidth />);
 }
 
@@ -198,22 +211,12 @@ const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewP
                      detailsMapping={topViewDetailsMapping} 
                      iconsComp={topViewIcons}
                      split={"horizontal"}
+                     minSize={50}
+                     defaultSize={100}
                      />
     );
-    //return (
-    //    <>{JSON.stringify(tests_json)}</>
-    //);
-}*/
-
-const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
     return (
-    <DetailsTree root={props.testresults}
-                visibleFilter={visibleFilter}
-                unpackFilter={unpackFilter}
-                detailsMapping={detailsMapping} 
-                iconsComp={Icons}
-                split={"vertical"}
-                />
+        <>{JSON.stringify(tests_json)}</>
     );
 }
 
