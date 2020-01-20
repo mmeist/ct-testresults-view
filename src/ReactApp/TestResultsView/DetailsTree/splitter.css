@@ -1,7 +1,15 @@
 .Resizer.vertical {
     width: 6px;
     margin: 0 -3px;
-    border-left: 3px solid rgba(255, 255, 255, 0);
-    border-right: 3px solid rgba(255, 255, 255, 0);
-    cursor: e-resize;
+    border-left: 3px solid rgba(0, 0, 0, 0);
+    border-right: 3px solid rgba(0, 0, 0, 0);
+    cursor: ew-resize;
+}
+
+.Resizer.horizontal {
+    height: 6px;
+    margin: -3 0px;
+    border-top: 3px solid rgba(0, 0, 0, 0);
+    border-bottom: 3px solid rgba(0, 0, 0, 0);
+    cursor: ns-resize;
 }

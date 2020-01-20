@@ -6,12 +6,15 @@ import "./splitter.css";
 
 import {ChildNodesComp, NodeStore, TOGGLED_KEY} from './JsonTree';
 
+import * as _ from 'lodash';
+
 interface DetailsTreeProps {
     root: any,
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
     detailsMapping: (parent: NodeStore | null, [k, v]: [string, any]) => React.FC<NodeStore> | null,
     iconsComp: React.FC<NodeStore>,
+    split: "horizontal" | "vertical" | undefined,
 }
 
 export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps) => {
@@ -19,16 +22,16 @@ export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps)
         // set toggled for non leaf nodes
         if (!node.is_leaf) {
             if (node.values[TOGGLED_KEY] === undefined) {
-                node.values[TOGGLED_KEY] = true;
+                _.set(node.values, TOGGLED_KEY, true);
             } else {
-                node.values[TOGGLED_KEY] = !node.values[TOGGLED_KEY];
+                _.set(node.values, TOGGLED_KEY, !_.get(node.values, TOGGLED_KEY));
             }
         }
 
         setSelectedNode(node);
 
         // force state update
-        setRoot(Object.assign({}, root));
+        setRoot(_.assign({}, root));
     }
 
     const leafsFilter = (parent: NodeStore | null, [k, v]: [string, any]): boolean => {
@@ -69,7 +72,7 @@ export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps)
     );
 
     return (
-        <SplitPane split="vertical" minSize={100} defaultSize={400}>
+        <SplitPane split={props.split} minSize={100} defaultSize={400}>
             <div className="tree-container" tabIndex={0}>
                 {root_nodes}
             </div>

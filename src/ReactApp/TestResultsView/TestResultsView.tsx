@@ -3,9 +3,13 @@ import {Fragment} from 'react';
 import {NodeStore, DetailsTree} from './DetailsTree';
 import {Tabs, Tab} from './Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faTimes, faFolder, faExclamation, faUserGraduate, faBook } from '@fortawesome/free-solid-svg-icons'
+import SplitPane from 'react-split-pane';
+import { faCheck, faTimes, faFolder, faExclamation, faUserGraduate, faBook } from '@fortawesome/free-solid-svg-icons';
+
+import * as _ from 'lodash';
 
 //import './App.css';
+
 
 const info_mapping: Record<string, string> = {
     "2": "there was no comparison done",
@@ -139,14 +143,82 @@ interface TestResultsViewProps {
     testresults: any
 }
 
+/*const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
+    //return (
+    //    <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
+    //        <div className="tree-container" tabIndex={0}>
+    //            asdasdasdasdasd
+    //        </div>
+    //        <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
+    //            qweqweqwe
+    //        </SplitPane>
+    //        <div className="details-container" tabIndex={0}>
+    //            <DetailsTree root={props.values}
+    //            visibleFilter={visibleFilter}
+    //            unpackFilter={unpackFilter}
+    //            detailsMapping={detailsMapping} 
+    //            iconsComp={Icons}
+    //            split={"vertical"}
+    //            />
+    //        </div>
+    //    </SplitPane>
+    //);
+    return (
+        <>asdsadasdasd</>
+    );
+}
+
+const defaultVisibleFilter = ([k, v]: [string, any]): boolean => {
+    return k !== "status";
+}
+
+const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
+    return false;
+}
+
+const topViewDetailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
+    return BottomView
+}
+
+const topViewIcons: React.FC<NodeStore> = (node: NodeStore) => {
+    return (<FontAwesomeIcon icon={faFolder} size="sm" fixedWidth />);
+}
+
+const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
+
+    let tests_json = _.get(props.testresults, 'json');
+    let information = _.get(props.testresults, 'info.Information');
+    _.entries(tests_json).forEach(([k, v]: [string, any]) => {
+        _.assign(v, {testcount_: _.get(information, 'testcount'),
+                     submissioncount_: _.get(information, 'submissioncount')});
+        if (_.get(information, k) !== undefined) {
+            _.assign(v, {information_: _.get(information, k)});
+        }
+    });
+
+    return (
+        <DetailsTree root={tests_json}
+                     visibleFilter={defaultVisibleFilter}
+                     unpackFilter={defaultUnpackFilter}
+                     detailsMapping={topViewDetailsMapping} 
+                     iconsComp={topViewIcons}
+                     split={"horizontal"}
+                     />
+    );
+    //return (
+    //    <>{JSON.stringify(tests_json)}</>
+    //);
+}*/
+
 const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
     return (
-        <DetailsTree root={props.testresults}
-                     visibleFilter={visibleFilter}
-                     unpackFilter={unpackFilter}
-                     detailsMapping={detailsMapping} 
-                     iconsComp={Icons}
-                     />
+    <DetailsTree root={props.testresults}
+                visibleFilter={visibleFilter}
+                unpackFilter={unpackFilter}
+                detailsMapping={detailsMapping} 
+                iconsComp={Icons}
+                split={"vertical"}
+                />
     );
 }
 

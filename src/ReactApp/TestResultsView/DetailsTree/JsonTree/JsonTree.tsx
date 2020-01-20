@@ -3,6 +3,8 @@ import {MouseEvent} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretRight } from '@fortawesome/free-solid-svg-icons'
 
+import * as _ from 'lodash';
+
 const MAX_DEPTH: number = 100;
 const OBJECT_TYPE: string = typeof {};
 export const TOGGLED_KEY: string = "_toggled";
@@ -40,12 +42,12 @@ interface ChildNodesProps {
 export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps) => {
     function unpackNode([k, v]: [string, any]): [string, any][] {
         if (props.unpackFilter([k, v]) === true) {
-            return Object.entries(v).flatMap(unpackNode);
+            return _.entries(v).flatMap(unpackNode);
         }
         return [[k, v]];
     }
 
-    let obj_entries: any = Object.entries(props.values);
+    let obj_entries: any = _.entries(props.values);
     let obj_leafs: any[] = [];
     let obj_nodes: any[] = [];
 
@@ -63,7 +65,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         }
     })
     
-    if ((props.values[TOGGLED_KEY] || props.parent === null) &&
+    if ((_.get(props.values, TOGGLED_KEY) || props.parent === null) &&
             (obj_leafs.length > 0 || obj_nodes.length > 0) &&
             props.depth < MAX_DEPTH) {
         child_nodes = (
@@ -130,7 +132,7 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
     let toggle_svg;
     if (props.node.is_leaf) {
         toggle_svg = (<FontAwesomeIcon icon={faCaretRight} size="sm" fixedWidth color={"#ffffff00"}/>);
-    } else if (props.node.values[TOGGLED_KEY]) {
+    } else if (_.get(props.node.values, TOGGLED_KEY)) {
         toggle_svg = (<FontAwesomeIcon icon={faCaretRight} size="sm" fixedWidth transform={{ rotate: 45 }}/>);
     } else {
         toggle_svg = (<FontAwesomeIcon icon={faCaretRight} size="sm" fixedWidth />);
