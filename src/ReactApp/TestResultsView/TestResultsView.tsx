@@ -39,11 +39,12 @@ const mark_difference = (a: string, b: string): [string, string] => {
 }
 
 const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
-    const info: string = info_mapping[props.values.comparison_];
+    let comparison = _.get(props.values, 'comparison_');
+    const info: string = info_mapping[comparison];
 
-    let student_value: string = props.values.value_.student_.value_;
-    let reference_value: string = props.values.value_.reference_.value_;
-    if (props.values.comparison_ === "0") {
+    let student_value: string = _.get(props.values, 'value_.student_.value_');
+    let reference_value: string = _.get(props.values, 'value_.reference_.value_');
+    if (comparison === "0") {
         [student_value, reference_value] = mark_difference(student_value, reference_value);
     }
 
@@ -52,8 +53,8 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
          content: (
             <div>
                 <p>{info}</p>
-                <p>class = {props.values.value_.student_.class_}</p>
-                <p>size = {props.values.value_.student_.size_}</p>
+                <p>class = {_.get(props.values, 'value_.student_.class_')}</p>
+                <p>size = {_.get(props.values, 'value_.student_.size_')}</p>
                 <p><code dangerouslySetInnerHTML={{__html: student_value}}/></p>
             </div>)
         },
@@ -61,8 +62,8 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
          content: (
             <div>
                 <p>{info}</p>
-                <p>class = {props.values.value_.reference_.class_}</p>
-                <p>size = {props.values.value_.reference_.size_}</p>
+                <p>class = {_.get(props.values, 'value_.reference_.value_')}</p>
+                <p>size = {_.get( props.values, 'value_.reference_.size_')}</p>
                 <p><code dangerouslySetInnerHTML={{__html: reference_value}}/></p>
             </div>)
         },
@@ -72,7 +73,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
 
 const CellComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
     const cell_node: NodeStore = {name: props.name,
-                                  values: props.values.cell,
+                                  values: _.get(props.values, 'cell'),
                                   parent: props.parent,
                                   is_leaf: true};
     return ComparisonDetailsView(cell_node);
@@ -91,16 +92,13 @@ const unpackFilter = ([k, v]: [string, any]): boolean => {
 
 const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
     if (parent !== null) {
-        if (v.value_ !== undefined &&
-            v.value_.student_ !== undefined &&
-            v.value_.reference_ !== undefined) {
+        if (_.get(v, 'value_.student_') !== undefined &&
+            _.get(v, 'value_.reference_') !== undefined) {
             //if (parent.name === "comparison" && k !== "mltutorGraphicsResults") {
             return ComparisonDetailsView;
         }
-        if (v.cell !== undefined &&
-            v.cell.value_!== undefined &&
-            v.cell.value_.student_ !== undefined &&
-            v.cell.value_.student_ !== undefined) {
+        if (_.get(v, 'cell.value_.student_') !== undefined &&
+            _.get(v, 'cell.value_.reference_') !== undefined) {
             return CellComparisonDetailsView;
         }
     }
@@ -110,14 +108,14 @@ const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.
 
 const Icons: React.FC<NodeStore> = (node: NodeStore) => {
     let comparison: any;
-    if (node.parent === null && node.values.comparison !== undefined) {
-        comparison = node.values.comparison.comparison_;
-    } else if (node.values.comparison_ === undefined) {
-        if (node.values.cell !== undefined && node.values.cell.comparison_ !== undefined) {
-            comparison = node.values.cell.comparison_;
+    if (node.parent === null && _.get(node.values, 'comparison') !== undefined) {
+        comparison = _.get(node.values, 'comparison.comparison_');
+    } else if (_.get(node.values, 'comparison_') === undefined) {
+        if (_.get(node.values, 'cell.comparison_') !== undefined) {
+            comparison = _.get(node.values, 'cell.comparison_');
         }
     } else {
-        comparison = node.values.comparison_;
+        comparison = _.get(node.values, 'comparison_');
     }
 
     if (comparison === "1") { // correct
@@ -140,31 +138,28 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
 }
 
 interface TestResultsViewProps {
-    testresults: any
+    testresults: any;
 }
 
 /*const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
-    //return (
-    //    <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
-    //        <div className="tree-container" tabIndex={0}>
-    //            asdasdasdasdasd
-    //        </div>
-    //        <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
-    //            qweqweqwe
-    //        </SplitPane>
-    //        <div className="details-container" tabIndex={0}>
-    //            <DetailsTree root={props.values}
-    //            visibleFilter={visibleFilter}
-    //            unpackFilter={unpackFilter}
-    //            detailsMapping={detailsMapping} 
-    //            iconsComp={Icons}
-    //            split={"vertical"}
-    //            />
-    //        </div>
-    //    </SplitPane>
-    //);
     return (
-        <>asdsadasdasd</>
+        <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
+            <div className="tree-container" tabIndex={0}>
+                asdasdasdasdasd
+            </div>
+            <SplitPane split={"horizontal"} minSize={100} defaultSize={400}>
+                qweqweqwe
+            </SplitPane>
+            <div className="details-container" tabIndex={0}>
+                <DetailsTree root={props.values}
+                visibleFilter={visibleFilter}
+                unpackFilter={unpackFilter}
+                detailsMapping={detailsMapping} 
+                iconsComp={Icons}
+                split={"vertical"}
+                />
+            </div>
+        </SplitPane>
     );
 }
 
