@@ -219,9 +219,6 @@ const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewP
                      defaultSize={100}
                      />
     );
-    return (
-        <>{JSON.stringify(tests_json)}</>
-    );
 }
 
 export default TestResultsView;
