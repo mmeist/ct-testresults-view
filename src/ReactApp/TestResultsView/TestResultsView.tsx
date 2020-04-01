@@ -65,7 +65,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
                 <p>{info}</p>
                 <p>class = {_.get(props.values, 'value_.student_.class_')}</p>
                 <p>size = {_.get(props.values, 'value_.student_.size_')}</p>
-                <p><code><pre dangerouslySetInnerHTML={{__html: student_value}}/></code><code/></p>
+                <p><code style={{whiteSpace: "pre-wrap"}}dangerouslySetInnerHTML={{__html: student_value}}/></p>
             </div>)
         },
         {name: "reference", icon: (<FontAwesomeIcon icon={faBook} size="sm" fixedWidth />),
@@ -74,7 +74,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
                 <p>{info}</p>
                 <p>class = {_.get(props.values, 'value_.reference_.class_')}</p>
                 <p>size = {_.get( props.values, 'value_.reference_.size_')}</p>
-                <p><code><pre dangerouslySetInnerHTML={{__html: reference_value}}/></code><code/></p>
+                <p><code style={{whiteSpace: "pre-wrap"}}dangerouslySetInnerHTML={{__html: reference_value}}/></p>
             </div>)
         },
     ];
