@@ -12,6 +12,7 @@ interface DetailsTreeProps {
     root: any,
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
+    preToggled: (values: any) => boolean,
     detailsMapping: (parent: NodeStore | null, [k, v]: [string, any]) => React.FC<NodeStore> | null,
     iconsComp: React.FC<NodeStore>,
     split: "horizontal" | "vertical" | undefined,
@@ -20,11 +21,15 @@ interface DetailsTreeProps {
 }
 
 export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps) => {
+    const isToggled = (value: any): boolean => {
+        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
+    }
+
     const onToggle = (node: NodeStore) => {
         // set toggled for non leaf nodes
         if (!node.is_leaf) {
             if (node.values[TOGGLED_KEY] === undefined) {
-                _.set(node.values, TOGGLED_KEY, true);
+                _.set(node.values, TOGGLED_KEY, !isToggled(node.values));
             } else {
                 _.set(node.values, TOGGLED_KEY, !_.get(node.values, TOGGLED_KEY));
             }
@@ -69,6 +74,7 @@ export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps)
                         visibleFilter={props.visibleFilter}
                         leafsFilter={leafsFilter}
                         unpackFilter={props.unpackFilter}
+                        preToggled={props.preToggled}
                         iconsComp={props.iconsComp}
                         depth={0}/>
     );

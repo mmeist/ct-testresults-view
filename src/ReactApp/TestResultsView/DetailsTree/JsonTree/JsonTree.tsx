@@ -23,6 +23,7 @@ interface NodeProps {
     onToggle: (node: NodeStore) => void,
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
+    preToggled: (values: any) => boolean,
     leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
     iconsComp: React.FC<NodeStore>,
 }
@@ -35,6 +36,7 @@ interface ChildNodesProps {
     onToggle: (node: NodeStore) => void,
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
+    preToggled: (values: any) => boolean,
     leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
     iconsComp: React.FC<NodeStore>,
 }
@@ -45,6 +47,10 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
             return _.entries(v).flatMap(unpackNode);
         }
         return [[k, v]];
+    }
+
+    const isToggled = (value: any): boolean => {
+        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
     }
 
     let obj_entries: any = _.entries(props.values);
@@ -65,7 +71,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         }
     })
     
-    if ((_.get(props.values, TOGGLED_KEY) || props.parent === null) &&
+    if ((isToggled(props.values) || props.parent === null) &&
             (obj_leafs.length > 0 || obj_nodes.length > 0) &&
             props.depth < MAX_DEPTH) {
         child_nodes = (
@@ -80,6 +86,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
                                                      visibleFilter={props.visibleFilter}
                                                      leafsFilter={props.leafsFilter}
                                                      unpackFilter={props.unpackFilter}
+                                                     preToggled={props.preToggled}
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}    
                 {obj_leafs.map(([k, v]) => <NodeComp key={k}
@@ -92,6 +99,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
                                                      visibleFilter={props.visibleFilter}
                                                      leafsFilter={props.leafsFilter}
                                                      unpackFilter={props.unpackFilter}
+                                                     preToggled={props.preToggled}
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}
             </ul>
@@ -105,6 +113,10 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
     function handleClick(e: MouseEvent) {
         props.onToggle(props.node);
     }
+
+    const isToggled = (value: any): boolean => {
+        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
+    }
     
     let child_nodes: React.ReactElement | null = null;
 
@@ -116,6 +128,7 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
                                        visibleFilter={props.visibleFilter}
                                        leafsFilter={props.leafsFilter}
                                        unpackFilter={props.unpackFilter}
+                                       preToggled={props.preToggled}
                                        iconsComp={props.iconsComp}
                                        depth={props.depth + 1}/>);
     }
@@ -132,7 +145,7 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
     let toggle_svg;
     if (props.node.is_leaf) {
         toggle_svg = (<FontAwesomeIcon icon={faCaretRight} size="sm" fixedWidth color={"#ffffff00"}/>);
-    } else if (_.get(props.node.values, TOGGLED_KEY)) {
+    } else if (isToggled(props.node.values)) {
         toggle_svg = (<FontAwesomeIcon icon={faCaretRight} size="sm" fixedWidth transform={{ rotate: 45 }}/>);
     } else {
         toggle_svg = (<FontAwesomeIcon icon={faCaretRight} size="sm" fixedWidth />);

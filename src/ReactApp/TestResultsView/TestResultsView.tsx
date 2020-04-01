@@ -116,7 +116,7 @@ const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.
     return null;
 }
 
-const Icons: React.FC<NodeStore> = (node: NodeStore) => {
+const get_comparison = (node: NodeStore): any => {
     let comparison: any;
     if (node.parent === null && _.get(node.values, 'comparison') !== undefined) {
         comparison = _.get(node.values, 'comparison.comparison_');
@@ -127,6 +127,16 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
     } else {
         comparison = _.get(node.values, 'comparison_');
     }
+    return comparison;
+}
+
+const bottomPreToggled = (values: any): boolean => {
+    const comp = _.get(values, 'comparison_');
+    return !(comp === "1" || comp === "2" || comp === undefined);
+}
+
+const Icons: React.FC<NodeStore> = (node: NodeStore) => {
+    let comparison = get_comparison(node);
 
     if (comparison === "1") { // correct
         return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
@@ -161,6 +171,7 @@ const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
                 <DetailsTree root={props.values}
                              visibleFilter={visibleFilter}
                              unpackFilter={unpackFilter}
+                             preToggled={bottomPreToggled}
                              detailsMapping={detailsMapping} 
                              iconsComp={Icons}
                              split={"vertical"}
@@ -177,6 +188,10 @@ const defaultVisibleFilter = ([k, v]: [string, any]): boolean => {
 }
 
 const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
+    return false;
+}
+
+const defaultPreToggled = (_: any): boolean => {
     return false;
 }
 
@@ -212,6 +227,7 @@ const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewP
         <DetailsTree root={tests_json}
                      visibleFilter={defaultVisibleFilter}
                      unpackFilter={defaultUnpackFilter}
+                     preToggled={defaultPreToggled}
                      detailsMapping={topViewDetailsMapping} 
                      iconsComp={topViewIcons}
                      split={"horizontal"}
