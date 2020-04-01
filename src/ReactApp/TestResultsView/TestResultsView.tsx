@@ -23,9 +23,12 @@ const info_mapping: Record<string, string> = {
 };
 
 const mark_difference = (a: string, b: string): [string, string] => {
-    let a_words = a.split(' ');
-    let b_words = b.split(' ');
-    for (let i = 0; i < a_words.length; i++) {
+    let a_leading_spaces = a.search(/\S/);
+    let b_leading_spaces = b.search(/\S/);
+    let a_words = a.substring(a_leading_spaces).split(/(\s+)/);
+    let b_words = b.substring(b_leading_spaces).split(/(\s+)/);
+    for (let i = 0; i < a_words.length; i += 2) {
+        // dont compare length of whitespaces, therefore i += 2
         if (i > b_words.length) {
             break;
         }
@@ -34,7 +37,8 @@ const mark_difference = (a: string, b: string): [string, string] => {
             b_words[i] = '<span style="background-color:#770000;">' + b_words[i] + '</span>'
         }
     } 
-    return [a_words.join(' '), b_words.join(' ')];
+    return [' '.repeat(a_leading_spaces) + a_words.join(''),
+            ' '.repeat(b_leading_spaces) + b_words.join('')];
 }
 
 const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
@@ -45,10 +49,10 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
     let reference_value: string = _.get(props.values, 'value_.reference_.value_');
 
     // hack for matrix formatting in matlab testresults json
-    student_value = student_value.replace(/\\\\n/g, '<br \>');
-    student_value = student_value.replace(/\\n/g, '<br \>');
-    reference_value = reference_value.replace(/\\\\n/g, '<br \>');
-    reference_value = reference_value.replace(/\\n/g, '<br \>');
+    student_value = student_value.replace(/\\n/g, '<br\>');
+    student_value = student_value.replace(/\n/g, '<br\>');
+    reference_value = reference_value.replace(/\\n/g, '<br\>');
+    reference_value = reference_value.replace(/\n/g, '<br\>');
 
     if (comparison === "0") {
         [student_value, reference_value] = mark_difference(student_value, reference_value);
@@ -61,7 +65,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
                 <p>{info}</p>
                 <p>class = {_.get(props.values, 'value_.student_.class_')}</p>
                 <p>size = {_.get(props.values, 'value_.student_.size_')}</p>
-                <p><code dangerouslySetInnerHTML={{__html: student_value}}/></p>
+                <p><code><pre dangerouslySetInnerHTML={{__html: student_value}}/></code><code/></p>
             </div>)
         },
         {name: "reference", icon: (<FontAwesomeIcon icon={faBook} size="sm" fixedWidth />),
@@ -70,7 +74,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
                 <p>{info}</p>
                 <p>class = {_.get(props.values, 'value_.reference_.class_')}</p>
                 <p>size = {_.get( props.values, 'value_.reference_.size_')}</p>
-                <p><code dangerouslySetInnerHTML={{__html: reference_value}}/></p>
+                <p><code><pre dangerouslySetInnerHTML={{__html: reference_value}}/></code><code/></p>
             </div>)
         },
     ];
