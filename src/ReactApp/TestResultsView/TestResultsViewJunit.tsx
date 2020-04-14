@@ -45,7 +45,19 @@ const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
 };
 
 const defaultPreToggled = (values: any): boolean => {
-    return _.get(values, 'result') !== "passed";
+    let failure = _.get(values, 'failure');
+    if (failure !== undefined) {
+        return true;
+    }
+    let errors = _.get(values, '_attributes.errors')
+    if (errors !== undefined && errors !== "0") {
+        return true;
+    }
+    let failures = _.get(values, '_attributes.failures')
+    if (failures !== undefined && failures !== "0") {
+        return true;
+    }
+    return false;
 };
 
 const Icons: React.FC<NodeStore> = (node: NodeStore) => {
