@@ -53,7 +53,8 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
     }
 
-    let obj_entries: any = _.entries(props.values);
+    let obj_entries: any = Array.isArray(props.values) ? props.values : _.entries(props.values);
+    console.log('asdasdasd');
     let obj_leafs: any[] = [];
     let obj_nodes: any[] = [];
 
@@ -77,7 +78,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         child_nodes = (
             <ul>
                 {obj_nodes.map(([k, v]) => <NodeComp key={k}
-                                                     node={{name: k,
+                                                     node={{name: v.name,
                                                             values: v,
                                                             parent: props.parent,
                                                             is_leaf: false}}
@@ -90,9 +91,9 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}    
                 {obj_leafs.map(([k, v]) => <NodeComp key={k}
-                                                     node={{name: k,
+                                                     node={{name: v.name,
                                                             values: v,
-                                                            parent:props.parent,
+                                                            parent: props.parent,
                                                             is_leaf: true}}
                                                      selected_node={props.selected_node}
                                                      onToggle={props.onToggle}

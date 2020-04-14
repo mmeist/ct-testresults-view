@@ -14,8 +14,8 @@ const VSCodeApp: React.FC<VSCodeAppProps> = (props: VSCodeAppProps) => {
         const message = event.data;
         switch (message.command) {
             case 'update_testresults':
-                //setTestresults(Object.assign({}, JSON.parse(convert_testresults(message.content))));
-                setTestresults(Object.assign({}, JSON.parse(message.content)));
+                setTestresults(Object.assign({}, JSON.parse(convert_testresults(message.content))));
+                //setTestresults(Object.assign({}, JSON.parse(message.content)));
                 break;
         }
     }

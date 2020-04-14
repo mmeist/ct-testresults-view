@@ -8,20 +8,6 @@ import { faCheck, faTimes, faFolder, faExclamation, faUserGraduate, faBook } fro
 
 import * as _ from 'lodash';
 
-//import './App.css';
-
-const info_mapping: Record<string, string> = {
-    "2": "there was no comparison done",
-    "1": "all elements are the same",
-    "0": "not all elemts are the same",
-    "-1": "class does not agree",
-    "-2": "dimension does not agree",
-    "-3": "size does not agree",
-    "-4": "is not present in student results",
-    "-5": "can not be compared (function_handle,inline)",
-    "-6": "is not present in reference results"
-};
-
 const mark_difference = (a: string, b: string): [string, string] => {
     let a_leading_spaces = a.search(/\S/);
     let b_leading_spaces = b.search(/\S/);
@@ -39,14 +25,14 @@ const mark_difference = (a: string, b: string): [string, string] => {
     } 
     return [' '.repeat(a_leading_spaces) + a_words.join(''),
             ' '.repeat(b_leading_spaces) + b_words.join('')];
-}
+};
 
 const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
-    let comparison = _.get(props.values, 'comparison_');
-    const info: string = info_mapping[comparison];
+    const details: string = _.get(props.values, 'details');
+    const info: string = _.get(details, 'info');
 
-    let student_value: string = _.get(props.values, 'value_.student_.value_');
-    let reference_value: string = _.get(props.values, 'value_.reference_.value_');
+    let student_value: string = _.get(details, 'student.value');
+    let reference_value: string = _.get(details, 'reference.value');
 
     // hack for matrix formatting in matlab testresults json
     student_value = student_value.replace(/\\n/g, '<br\>');
@@ -54,7 +40,7 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
     reference_value = reference_value.replace(/\\n/g, '<br\>');
     reference_value = reference_value.replace(/\n/g, '<br\>');
 
-    if (comparison === "0") {
+    if (info === "not all elemts are the same") {
         [student_value, reference_value] = mark_difference(student_value, reference_value);
     }
 
@@ -63,8 +49,8 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
          content: (
             <div>
                 <p>{info}</p>
-                <p>class = {_.get(props.values, 'value_.student_.class_')}</p>
-                <p>size = {_.get(props.values, 'value_.student_.size_')}</p>
+                <p>type: {_.get(details, 'student.type')}</p>
+                <p>shape: {_.get(details, 'student.shape')}</p>
                 <p><code style={{whiteSpace: "pre-wrap"}}dangerouslySetInnerHTML={{__html: student_value}}/></p>
             </div>)
         },
@@ -72,107 +58,40 @@ const ComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
          content: (
             <div>
                 <p>{info}</p>
-                <p>class = {_.get(props.values, 'value_.reference_.class_')}</p>
-                <p>size = {_.get( props.values, 'value_.reference_.size_')}</p>
+                <p>type: {_.get(details, 'reference.type')}</p>
+                <p>shape: {_.get( details, 'reference.shape')}</p>
                 <p><code style={{whiteSpace: "pre-wrap"}}dangerouslySetInnerHTML={{__html: reference_value}}/></p>
             </div>)
         },
     ];
     return(<Tabs tabs={tabs}/>);
-}
-
-const CellComparisonDetailsView: React.FC<NodeStore> = (props: NodeStore) => {
-    const cell_node: NodeStore = {name: props.name,
-                                  values: _.get(props.values, 'cell'),
-                                  parent: props.parent,
-                                  is_leaf: true};
-    return ComparisonDetailsView(cell_node);
-}
-
-const visibleFilter = ([k, v]: [string, any]): boolean => {
-    return !k.endsWith("_") || k === "value_";
-}
-
-const unpackFilter = ([k, v]: [string, any]): boolean => {
-    if (k === "value_") {
-        return true;
-    }
-    return false;
-}
-
-const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
-    if (parent !== null) {
-        if (_.get(v, 'value_.student_') !== undefined &&
-            _.get(v, 'value_.reference_') !== undefined) {
-            //if (parent.name === "comparison" && k !== "mltutorGraphicsResults") {
-            return ComparisonDetailsView;
-        }
-        if (_.get(v, 'cell.value_.student_') !== undefined &&
-            _.get(v, 'cell.value_.reference_') !== undefined) {
-            return CellComparisonDetailsView;
-        }
-    }
-    // no details mapping found
-    return null;
-}
-
-const get_comparison = (node: NodeStore): any => {
-    let comparison: any;
-    if (node.parent === null && _.get(node.values, 'comparison') !== undefined) {
-        comparison = _.get(node.values, 'comparison.comparison_');
-    } else if (_.get(node.values, 'comparison_') === undefined) {
-        if (_.get(node.values, 'cell.comparison_') !== undefined) {
-            comparison = _.get(node.values, 'cell.comparison_');
-        }
-    } else {
-        comparison = _.get(node.values, 'comparison_');
-    }
-    return comparison;
-}
-
-const bottomPreToggled = (values: any): boolean => {
-    const comp = _.get(values, 'comparison_');
-    return !(comp === "1" || comp === "2" || comp === undefined);
-}
-
-const Icons: React.FC<NodeStore> = (node: NodeStore) => {
-    let comparison = get_comparison(node);
-
-    if (comparison === "1") { // correct
-        return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
-    }
-    if (comparison === "0") { // wrong value
-        return (<FontAwesomeIcon icon={faTimes} color="yellow" size="sm" fixedWidth />);
-    }
-    if (comparison < 0) { // other error
-        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
-    }
-
-    if (detailsMapping(node.parent, [node.name, node.values]) === null) {
-        return (<FontAwesomeIcon icon={faFolder} size="sm" fixedWidth />);
-    } else {
-        return (<FontAwesomeIcon icon={faExclamation} size="sm" fixedWidth />);
-    }
-
-    //return null;
-}
+};
 
 interface TestResultsViewProps {
     testresults: any;
+}
+
+const bottomViewDetailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
+    if (_.get(v, 'details') !== undefined) {
+        if (_.get(v, 'details.tag') === 'comparison') {
+            return ComparisonDetailsView;
+        }
+    }
+    return null;
 }
 
 const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
     return (
         <SplitPane split={"horizontal"} minSize={50} defaultSize={100}>
             <div className="tree-container" tabIndex={0}>
-                {_.get(props.values, 'information_').map((line: any) => <>{line}<br /></>)}
+                {_.get(props.values, 'info').split('\n').map((line: any) => <>{line}<br /></>)}
             </div>
             <div className="details-container" tabIndex={0}>
                 <DetailsTree root={props.values}
-                             visibleFilter={visibleFilter}
-                             unpackFilter={unpackFilter}
-                             preToggled={bottomPreToggled}
-                             detailsMapping={detailsMapping} 
+                             visibleFilter={defaultVisibleFilter}
+                             unpackFilter={defaultUnpackFilter}
+                             preToggled={defaultPreToggled}
+                             detailsMapping={bottomViewDetailsMapping} 
                              iconsComp={Icons}
                              split={"vertical"}
                              minSize={100}
@@ -184,28 +103,32 @@ const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
 }
 
 const defaultVisibleFilter = ([k, v]: [string, any]): boolean => {
-    return k !== "status";
+    return v.name !== undefined;
 }
 
 const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
-    return false;
+    return k === "children";
 }
 
-const defaultPreToggled = (_: any): boolean => {
-    return false;
+const defaultPreToggled = (values: any): boolean => {
+    return _.get(values, 'result') !== "passed";
 }
 
 const topViewDetailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
-    return BottomView
+    return BottomView;
 }
 
-const topViewIcons: React.FC<NodeStore> = (node: NodeStore) => {
-    let comparison = _.get(node.values, 'comparison.comparison_');
-    if (comparison !== undefined) {
-        if (comparison === "1") {
+const Icons: React.FC<NodeStore> = (node: NodeStore) => {
+    let result = _.get(node.values, 'result');
+    if (result !== undefined) {
+        if (result === "passed") {
             return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
-        } else {
+        } else if (result === "error") {
             return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+        } else if (result === "missing") {
+            return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+        } else if (result === "failed") {
+            return (<FontAwesomeIcon icon={faTimes} color="yellow" size="sm" fixedWidth />);
         }
     }
     return (<FontAwesomeIcon icon={faFolder} size="sm" fixedWidth />);
@@ -213,23 +136,18 @@ const topViewIcons: React.FC<NodeStore> = (node: NodeStore) => {
 
 const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
 
-    let tests_json = _.get(props.testresults, 'json');
-    let information = _.get(props.testresults, 'info.Information');
-    _.entries(tests_json).forEach(([k, v]: [string, any]) => {
-        _.assign(v, {testcount_: _.get(information, 'testcount'),
-                     submissioncount_: _.get(information, 'submissioncount')});
-        if (_.get(information, k) !== undefined) {
-            _.assign(v, {information_: _.get(information, k)});
-        }
-    });
+    let tests_json = _.get(props.testresults, 'children.0'); // TODO: display multiple testsuites
 
+    //return (
+    //    <code>{JSON.stringify(tests_json)}</code>
+    //);
     return (
         <DetailsTree root={tests_json}
                      visibleFilter={defaultVisibleFilter}
                      unpackFilter={defaultUnpackFilter}
                      preToggled={defaultPreToggled}
                      detailsMapping={topViewDetailsMapping} 
-                     iconsComp={topViewIcons}
+                     iconsComp={Icons}
                      split={"horizontal"}
                      minSize={50}
                      defaultSize={100}
