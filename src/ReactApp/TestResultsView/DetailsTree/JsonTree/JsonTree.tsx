@@ -16,16 +16,23 @@ export interface NodeStore {
     is_leaf: boolean,
 }
 
+type FilterFunc = ([k, v]: [string, any]) => boolean;
+type NameFunc = ([k, v]: [string, any]) => string;
+
+export interface JsonTreeCallbacks {
+    onToggle: (node: NodeStore) => void,
+    visibleFilter: FilterFunc,
+    unpackFilter: FilterFunc,
+    displayedName: NameFunc,
+    preToggled: (values: any) => boolean,
+    leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
+}
+
 interface NodeProps {
     node: NodeStore,
     selected_node: NodeStore | undefined,
-    depth: number
-    onToggle: (node: NodeStore) => void,
-    visibleFilter: ([k, v]: [string, any]) => boolean,
-    unpackFilter: ([k, v]: [string, any]) => boolean,
-    displayedName: ([k, v]: [string, any]) => string,
-    preToggled: (values: any) => boolean,
-    leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
+    depth: number,
+    callbacks: JsonTreeCallbacks,
     iconsComp: React.FC<NodeStore>,
 }
 
@@ -33,26 +40,21 @@ interface ChildNodesProps {
     values: any,
     parent: NodeStore | null,
     selected_node: NodeStore | undefined,
-    depth: number
-    onToggle: (node: NodeStore) => void,
-    visibleFilter: ([k, v]: [string, any]) => boolean,
-    unpackFilter: ([k, v]: [string, any]) => boolean,
-    displayedName: ([k, v]: [string, any]) => string,
-    preToggled: (values: any) => boolean,
-    leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
+    depth: number,
+    callbacks: JsonTreeCallbacks,
     iconsComp: React.FC<NodeStore>,
 }
 
 export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps) => {
     function unpackNode([k, v]: [string, any]): [string, any][] {
-        if (props.unpackFilter([k, v]) === true) {
+        if (props.callbacks.unpackFilter([k, v]) === true) {
             return _.entries(v).flatMap(unpackNode);
         }
         return [[k, v]];
     }
 
     const isToggled = (value: any): boolean => {
-        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
+        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.callbacks.preToggled(value));
     }
 
     //let obj_entries: any = Array.isArray(props.values) ? props.values : _.entries(props.values);
@@ -65,10 +67,10 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
 
     obj_entries.flatMap(unpackNode)
                .forEach(([k, v]: [string, any]) => {
-        if (props.visibleFilter(([k, v])) === false || k === TOGGLED_KEY) {
+        if (props.callbacks.visibleFilter(([k, v])) === false || k === TOGGLED_KEY) {
             return;
         }
-        if (props.leafsFilter(props.parent, [k, v]) === true || typeof v !== OBJECT_TYPE) {
+        if (props.callbacks.leafsFilter(props.parent, [k, v]) === true || typeof v !== OBJECT_TYPE) {
             obj_leafs.push([k, v]);
         } else {
             obj_nodes.push([k, v]);
@@ -81,31 +83,21 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         child_nodes = (
             <ul>
                 {obj_nodes.map(([k, v]) => <NodeComp key={k}
-                                                     node={{name: props.displayedName([k, v]),
+                                                     node={{name: props.callbacks.displayedName([k, v]),
                                                             values: v,
                                                             parent: props.parent,
                                                             is_leaf: false}}
                                                      selected_node={props.selected_node}
-                                                     onToggle={props.onToggle}
-                                                     visibleFilter={props.visibleFilter}
-                                                     leafsFilter={props.leafsFilter}
-                                                     unpackFilter={props.unpackFilter}
-                                                     displayedName={props.displayedName}
-                                                     preToggled={props.preToggled}
+                                                     callbacks={props.callbacks}
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}    
                 {obj_leafs.map(([k, v]) => <NodeComp key={k}
-                                                     node={{name: props.displayedName([k, v]),
+                                                     node={{name: props.callbacks.displayedName([k, v]),
                                                             values: v,
                                                             parent: props.parent,
                                                             is_leaf: true}}
                                                      selected_node={props.selected_node}
-                                                     onToggle={props.onToggle}
-                                                     visibleFilter={props.visibleFilter}
-                                                     leafsFilter={props.leafsFilter}
-                                                     unpackFilter={props.unpackFilter}
-                                                     displayedName={props.displayedName}
-                                                     preToggled={props.preToggled}
+                                                     callbacks={props.callbacks}
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}
             </ul>
@@ -117,11 +109,11 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
 
 export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
     function handleClick(e: MouseEvent) {
-        props.onToggle(props.node);
+        props.callbacks.onToggle(props.node);
     }
 
     const isToggled = (value: any): boolean => {
-        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
+        return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.callbacks.preToggled(value));
     }
     
     let child_nodes: React.ReactElement | null = null;
@@ -130,12 +122,7 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
         child_nodes = (<ChildNodesComp values = {props.node.values}
                                        parent = {props.node}
                                        selected_node={props.selected_node}
-                                       onToggle={props.onToggle}
-                                       visibleFilter={props.visibleFilter}
-                                       leafsFilter={props.leafsFilter}
-                                       unpackFilter={props.unpackFilter}
-                                       displayedName={props.displayedName}
-                                       preToggled={props.preToggled}
+                                       callbacks={props.callbacks}
                                        iconsComp={props.iconsComp}
                                        depth={props.depth + 1}/>);
     }

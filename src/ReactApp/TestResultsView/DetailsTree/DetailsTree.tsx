@@ -71,12 +71,13 @@ export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps)
         <ChildNodesComp values = {props.root}
                         parent = {null}
                         selected_node={selected_node}
-                        onToggle={onToggle}
-                        visibleFilter={props.visibleFilter}
-                        leafsFilter={leafsFilter}
-                        unpackFilter={props.unpackFilter}
-                        displayedName={props.displayedName}
-                        preToggled={props.preToggled}
+                        callbacks={{onToggle: onToggle,
+                                    visibleFilter: props.visibleFilter,
+                                    leafsFilter: leafsFilter,
+                                    unpackFilter: props.unpackFilter,
+                                    displayedName: props.displayedName,
+                                    preToggled: props.preToggled}
+                        }
                         iconsComp={props.iconsComp}
                         depth={0}/>
     );
