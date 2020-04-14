@@ -12,7 +12,17 @@ interface TestResultsViewJunitProps {
     testresults: any;
 }
 
-const TextDetails: React.FC<NodeStore> = (props: NodeStore) => {
+const ErrorDetails: React.FC<NodeStore> = (props: NodeStore) => {
+    const text: string = _.get(props.values, 'error._text');
+
+    return(
+        <div>
+            <p style={{whiteSpace: "pre-wrap"}}>{text}</p>
+        </div>
+    );
+};
+
+const FailureDetails: React.FC<NodeStore> = (props: NodeStore) => {
     const text: string = _.get(props.values, 'failure._text');
 
     return(
@@ -22,12 +32,19 @@ const TextDetails: React.FC<NodeStore> = (props: NodeStore) => {
     );
 };
 
+const SuccessDetails: React.FC<NodeStore> = (props: NodeStore) => {
+    return(<></>);
+};
+
 const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
-    if (_.get(v, '_attributes.name') !== undefined) {
-        let name = _.get(v, '_attributes.name');
-        if (name.startsWith("test") && k !== "testsuite") {
-            return TextDetails;
-        }
+    if (v.error !== undefined) {
+        return ErrorDetails;
+    }
+    if (v.failure !== undefined) {
+        return FailureDetails;
+    }
+    if (_.get(v, "_attributes.name") !== undefined && k !== "testsuite") {
+        return SuccessDetails;
     }
     return null;
 };
@@ -45,10 +62,6 @@ const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
 };
 
 const defaultPreToggled = (values: any): boolean => {
-    let failure = _.get(values, 'failure');
-    if (failure !== undefined) {
-        return true;
-    }
     let errors = _.get(values, '_attributes.errors')
     if (errors !== undefined && errors !== "0") {
         return true;
@@ -63,6 +76,10 @@ const defaultPreToggled = (values: any): boolean => {
 const Icons: React.FC<NodeStore> = (node: NodeStore) => {
     let failure = _.get(node.values, 'failure');
     if (failure !== undefined) {
+        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+    }
+    let error = _.get(node.values, 'error');
+    if (error !== undefined) {
         return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
     }
     let errors = _.get(node.values, '_attributes.errors')

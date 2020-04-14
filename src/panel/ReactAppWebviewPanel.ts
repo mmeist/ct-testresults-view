@@ -144,6 +144,7 @@ function getFileContentXml(fileUri: vscode.Uri): any | null {
     if (fs.existsSync(fileUri.fsPath)) {
         const content = fs.readFileSync(fileUri.fsPath, "utf8");
         const testresults: any = convert.xml2js(content, {compact: true});
+        console.log(JSON.stringify(testresults));
 
         return testresults;
     }
