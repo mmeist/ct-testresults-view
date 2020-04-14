@@ -7,6 +7,7 @@ import SplitPane from 'react-split-pane';
 import { faCheck, faTimes, faFolder, faExclamation, faUserGraduate, faBook } from '@fortawesome/free-solid-svg-icons';
 
 import * as _ from 'lodash';
+import { version } from 'react-dom';
 
 const mark_difference = (a: string, b: string): [string, string] => {
     let a_leading_spaces = a.search(/\S/);
@@ -91,7 +92,8 @@ const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
                              visibleFilter={defaultVisibleFilter}
                              unpackFilter={defaultUnpackFilter}
                              preToggled={defaultPreToggled}
-                             detailsMapping={bottomViewDetailsMapping} 
+                             detailsMapping={bottomViewDetailsMapping}
+                             displayedName={defaultDisplayedName} 
                              iconsComp={Icons}
                              split={"vertical"}
                              minSize={100}
@@ -100,6 +102,10 @@ const BottomView: React.FC<NodeStore> = (props: NodeStore) => {
             </div>
         </SplitPane>
     );
+}
+
+const defaultDisplayedName = ([k, v]: [string, any]): string => {
+    return v.name !== undefined ? v.name : k;
 }
 
 const defaultVisibleFilter = ([k, v]: [string, any]): boolean => {
@@ -134,19 +140,17 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
     return (<FontAwesomeIcon icon={faFolder} size="sm" fixedWidth />);
 }
 
-const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
+export const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
 
     let tests_json = _.get(props.testresults, 'children.0'); // TODO: display multiple testsuites
 
-    //return (
-    //    <code>{JSON.stringify(tests_json)}</code>
-    //);
     return (
         <DetailsTree root={tests_json}
                      visibleFilter={defaultVisibleFilter}
                      unpackFilter={defaultUnpackFilter}
                      preToggled={defaultPreToggled}
                      detailsMapping={topViewDetailsMapping} 
+                     displayedName={defaultDisplayedName} 
                      iconsComp={Icons}
                      split={"horizontal"}
                      minSize={50}
@@ -154,5 +158,3 @@ const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewP
                      />
     );
 }
-
-export default TestResultsView;

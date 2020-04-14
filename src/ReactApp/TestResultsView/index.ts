@@ -1,1 +1,2 @@
-export {default} from './TestResultsView';
+export * from './TestResultsView';
+export * from './TestResultsViewJunit';

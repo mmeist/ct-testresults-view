@@ -23,6 +23,7 @@ interface NodeProps {
     onToggle: (node: NodeStore) => void,
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
+    displayedName: ([k, v]: [string, any]) => string,
     preToggled: (values: any) => boolean,
     leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
     iconsComp: React.FC<NodeStore>,
@@ -36,6 +37,7 @@ interface ChildNodesProps {
     onToggle: (node: NodeStore) => void,
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
+    displayedName: ([k, v]: [string, any]) => string,
     preToggled: (values: any) => boolean,
     leafsFilter: (parent: NodeStore | null, [k, v]: [string, any]) => boolean,
     iconsComp: React.FC<NodeStore>,
@@ -53,7 +55,8 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         return _.get(value, TOGGLED_KEY) || (_.get(value, TOGGLED_KEY) === undefined && props.preToggled(value));
     }
 
-    let obj_entries: any = Array.isArray(props.values) ? props.values : _.entries(props.values);
+    //let obj_entries: any = Array.isArray(props.values) ? props.values : _.entries(props.values);
+    let obj_entries: any = _.entries(props.values);
     console.log('asdasdasd');
     let obj_leafs: any[] = [];
     let obj_nodes: any[] = [];
@@ -78,7 +81,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
         child_nodes = (
             <ul>
                 {obj_nodes.map(([k, v]) => <NodeComp key={k}
-                                                     node={{name: v.name,
+                                                     node={{name: props.displayedName([k, v]),
                                                             values: v,
                                                             parent: props.parent,
                                                             is_leaf: false}}
@@ -87,11 +90,12 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
                                                      visibleFilter={props.visibleFilter}
                                                      leafsFilter={props.leafsFilter}
                                                      unpackFilter={props.unpackFilter}
+                                                     displayedName={props.displayedName}
                                                      preToggled={props.preToggled}
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}    
                 {obj_leafs.map(([k, v]) => <NodeComp key={k}
-                                                     node={{name: v.name,
+                                                     node={{name: props.displayedName([k, v]),
                                                             values: v,
                                                             parent: props.parent,
                                                             is_leaf: true}}
@@ -100,6 +104,7 @@ export const ChildNodesComp: React.FC<ChildNodesProps> = (props: ChildNodesProps
                                                      visibleFilter={props.visibleFilter}
                                                      leafsFilter={props.leafsFilter}
                                                      unpackFilter={props.unpackFilter}
+                                                     displayedName={props.displayedName}
                                                      preToggled={props.preToggled}
                                                      iconsComp={props.iconsComp}
                                                      depth={props.depth + 1}/>)}
@@ -129,6 +134,7 @@ export const NodeComp: React.FC<NodeProps> = (props: NodeProps) => {
                                        visibleFilter={props.visibleFilter}
                                        leafsFilter={props.leafsFilter}
                                        unpackFilter={props.unpackFilter}
+                                       displayedName={props.displayedName}
                                        preToggled={props.preToggled}
                                        iconsComp={props.iconsComp}
                                        depth={props.depth + 1}/>);

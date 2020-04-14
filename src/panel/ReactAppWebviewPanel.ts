@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from 'path';
+var convert = require('xml-js');
 
 export default class ReactAppWebviewPanel {
     public static currentPanel: ReactAppWebviewPanel | undefined;
@@ -64,18 +65,36 @@ export default class ReactAppWebviewPanel {
 	}
 
 	private _update(fileUri: vscode.Uri) {
-        let testresults = getFileContent(fileUri);
-        if (testresults) {        
-            this._panel.webview.html = this.getWebviewContent();
+        let suffix = fileUri.fsPath.split('.').pop();
+        if (suffix === "json") {
+            let testresults = getFileContent(fileUri);
+            if (testresults) {        
+                this._panel.webview.html = this.getWebviewContent();
 
-            // post message as string because Object gets sorted...
-            this._update_testresults(testresults);
+                // post message as string because Object gets sorted...
+                this._update_testresults(testresults);
+            }
+        } else if (suffix === "xml") {
+            let testresults = getFileContentXml(fileUri);
+            if (testresults) {        
+                this._panel.webview.html = this.getWebviewContent();
+    
+                // post message as string because Object gets sorted...
+                this._update_testresults_junit(testresults);
+            }
         }
+
     }
     
 	private _update_testresults(testresults: any | null) {
         if (testresults) {
             this._panel.webview.postMessage({ command: 'update_testresults', content: JSON.stringify(testresults)});
+        }
+    }
+    
+    private _update_testresults_junit(testresults: any | null) {
+        if (testresults) {
+            this._panel.webview.postMessage({ command: 'update_testresults_junit', content: JSON.stringify(testresults)});
         }
 	}
 
@@ -115,6 +134,17 @@ function getFileContent(fileUri: vscode.Uri): any | null {
     if (fs.existsSync(fileUri.fsPath)) {
         const content = fs.readFileSync(fileUri.fsPath, "utf8");
         const testresults: any = JSON.parse(content);
+
+        return testresults;
+    }
+    return null;
+}
+
+function getFileContentXml(fileUri: vscode.Uri): any | null {
+    if (fs.existsSync(fileUri.fsPath)) {
+        const content = fs.readFileSync(fileUri.fsPath, "utf8");
+        const testresults: any = convert.xml2js(content, {compact: true});
+        console.log(JSON.stringify(testresults));
 
         return testresults;
     }

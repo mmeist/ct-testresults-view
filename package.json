@@ -60,6 +60,7 @@
 		"lodash": "^4.17.15",
 		"react": "^16.12.0",
 		"react-dom": "^16.12.0",
-		"react-split-pane": "^0.1.89"
+		"react-split-pane": "^0.1.89",
+		"xml-js": "^1.6.11"
 	}
 }

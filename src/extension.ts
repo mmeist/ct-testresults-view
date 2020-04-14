@@ -25,7 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
 					canSelectFolders: false,
 					canSelectMany: false,
 					filters: {
-						Json: ["json"]
+						Valid: ["json", "xml"],
+						Json: ["json"],
+						Xml: ["xml"]
 					}
 			};
 			

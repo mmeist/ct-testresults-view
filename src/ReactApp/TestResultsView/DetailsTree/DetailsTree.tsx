@@ -13,6 +13,7 @@ interface DetailsTreeProps {
     visibleFilter: ([k, v]: [string, any]) => boolean,
     unpackFilter: ([k, v]: [string, any]) => boolean,
     preToggled: (values: any) => boolean,
+    displayedName: ([k, v]: [string, any]) => string,
     detailsMapping: (parent: NodeStore | null, [k, v]: [string, any]) => React.FC<NodeStore> | null,
     iconsComp: React.FC<NodeStore>,
     split: "horizontal" | "vertical" | undefined,
@@ -74,6 +75,7 @@ export const DetailsTree: React.FC<DetailsTreeProps> = (props: DetailsTreeProps)
                         visibleFilter={props.visibleFilter}
                         leafsFilter={leafsFilter}
                         unpackFilter={props.unpackFilter}
+                        displayedName={props.displayedName}
                         preToggled={props.preToggled}
                         iconsComp={props.iconsComp}
                         depth={0}/>
