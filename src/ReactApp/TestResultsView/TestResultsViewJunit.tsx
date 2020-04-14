@@ -13,8 +13,7 @@ interface TestResultsViewJunitProps {
 }
 
 const TextDetails: React.FC<NodeStore> = (props: NodeStore) => {
-    const details: string = _.get(props.values, 'details');
-    const text: string = _.get(details, 'text');
+    const text: string = _.get(props.values, 'failure._text');
 
     return(
         <div>
@@ -24,8 +23,9 @@ const TextDetails: React.FC<NodeStore> = (props: NodeStore) => {
 };
 
 const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
-    if (_.get(v, 'details') !== undefined) {
-        if (_.get(v, 'details.tag') === 'text') {
+    if (_.get(v, '_attributes.name') !== undefined) {
+        let name = _.get(v, '_attributes.name');
+        if (name.startsWith("test") && k !== "testsuite") {
             return TextDetails;
         }
     }
@@ -33,17 +33,15 @@ const detailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.
 };
 
 const defaultDisplayedName = ([k, v]: [string, any]): string => {
-    return k;
+    return _.get(v, "_attributes.name");
 }
 
 const defaultVisibleFilter = ([k, v]: [string, any]): boolean => {
-    _.set(v, name, k);
-    return true;
-    //return true;//return v.name !== undefined;
+    return !k.startsWith("_");
 };
 
 const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
-    return false;//return k === "children";
+    return k === "testcase";
 };
 
 const defaultPreToggled = (values: any): boolean => {
@@ -51,30 +49,27 @@ const defaultPreToggled = (values: any): boolean => {
 };
 
 const Icons: React.FC<NodeStore> = (node: NodeStore) => {
-    let result = _.get(node.values, 'result');
-    if (result !== undefined) {
-        if (result === "passed") {
-            return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
-        } else if (result === "error") {
-            return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
-        } else if (result === "missing") {
-            return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
-        } else if (result === "failed") {
-            return (<FontAwesomeIcon icon={faTimes} color="yellow" size="sm" fixedWidth />);
-        }
+    let failure = _.get(node.values, 'failure');
+    if (failure !== undefined) {
+        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
     }
-    return (<FontAwesomeIcon icon={faFolder} size="sm" fixedWidth />);
+    let errors = _.get(node.values, '_attributes.errors')
+    if (errors !== undefined && errors !== "0") {
+        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+    }
+    let failures = _.get(node.values, '_attributes.failures')
+    if (failures !== undefined && failures !== "0") {
+        return (<FontAwesomeIcon icon={faTimes} color="red" size="sm" fixedWidth />);
+    }
+    return (<FontAwesomeIcon icon={faCheck} color="green" size="sm" fixedWidth />);
 };
 
 export const TestResultsViewJunit: React.FC<TestResultsViewJunitProps> = (props: TestResultsViewJunitProps) => {
 
-    let tests_json = _.get(props.testresults, 'testsuites'); // TODO: display multiple testsuites
+    let tests_json = _.get(props.testresults, 'testsuites');
 
-    //return (
-    //    <code>{JSON.stringify(tests_json)}</code>
-    //);
     return (
-        <DetailsTree root={props.testresults}
+        <DetailsTree root={tests_json}
                         visibleFilter={defaultVisibleFilter}
                         unpackFilter={defaultUnpackFilter}
                         preToggled={defaultPreToggled}
