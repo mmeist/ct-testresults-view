@@ -13,18 +13,16 @@ const convert_testresults = (old_json: string) => {
         }
     });
 
-    let testsuite_obj = {};
-
     let test_suite: any = {
         name: 'Test Suite',
         result: 'passed',
-        children: [_.entries(old_obj_merged), _.entries(old_obj_merged.value_)]
+        tests: [_.entries(old_obj_merged), _.entries(old_obj_merged.value_)]
                     .flat()
                     .filter(([k, _]: [string, any]) => !k.endsWith("_"))
                     .map(([k, v]: [string, any]) => convert_node(k, v)),
     };
 
-    let new_obj = {children: [test_suite]};
+    let new_obj = {name: "Test Results", testsuites: [test_suite]};
     return JSON.stringify(new_obj);
 
 };

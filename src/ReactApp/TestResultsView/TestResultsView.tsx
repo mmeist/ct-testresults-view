@@ -113,7 +113,7 @@ const defaultVisibleFilter = ([k, v]: [string, any]): boolean => {
 }
 
 const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
-    return k === "children";
+    return k === "children" || k === "testsuites" || k === "tests";
 }
 
 const defaultPreToggled = (values: any): boolean => {
@@ -142,7 +142,7 @@ const Icons: React.FC<NodeStore> = (node: NodeStore) => {
 
 export const TestResultsView: React.FC<TestResultsViewProps> = (props: TestResultsViewProps) => {
 
-    let tests_json = _.get(props.testresults, 'children.0'); // TODO: display multiple testsuites
+    let tests_json = _.get(props.testresults, 'testsuites.0'); // TODO: display multiple testsuites
 
     return (
         <DetailsTree root={tests_json}
