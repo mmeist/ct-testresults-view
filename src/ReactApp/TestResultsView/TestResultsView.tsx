@@ -117,7 +117,7 @@ const defaultUnpackFilter = ([k, v]: [string, any]): boolean => {
 }
 
 const defaultPreToggled = (values: any): boolean => {
-    return _.get(values, 'result') !== "passed";
+    return _.get(values, 'result') !== undefined && _.get(values, 'result') !== "passed";
 }
 
 const topViewDetailsMapping = (parent: NodeStore | null, [k, v]: [string, any]): React.FC<NodeStore> | null => {
