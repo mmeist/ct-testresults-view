@@ -22,7 +22,7 @@ const convert_testresults = (old_json: string) => {
                     .map(([k, v]: [string, any]) => convert_node(k, v)),
     };
 
-    let new_obj = {name: "Test Results", testsuites: [test_suite]};
+    let new_obj = {testsuites: [test_suite]};
     return JSON.stringify(new_obj);
 
 };
