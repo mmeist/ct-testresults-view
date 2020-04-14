@@ -101,7 +101,7 @@ const convert_test = (name: string, old_obj: any) => {
         name: name,
         result: result_mapping[old_obj.comparison.comparison_],
         info: old_obj.information_.join('\n'),
-        children: [convert_node('comparison', old_obj.comparison), convert_node('figures', old_obj.figures),  convert_node('additional', old_obj.additional)],
+        children: [convert_node('comparison', old_obj.comparison), convert_node('figures', old_obj.figures), convert_node('additional', old_obj.additional)],
     };
     return new_obj;
 };
@@ -144,11 +144,13 @@ const convert_comparison = (name: string, old_obj: any) => {
 
     let new_obj = {
         name: name,
-        tag: 'comparison',
         result: result_mapping[old_obj.comparison_],
-        info: info_mapping[old_obj.comparison_],
-        student: student,
-        reference: reference,
+        details: {
+            tag: 'comparison',
+            info: info_mapping[old_obj.comparison_],
+            student: student,
+            reference: reference,
+        }
     };
     return new_obj;
 };
